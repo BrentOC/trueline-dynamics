@@ -2,25 +2,27 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-// This function creates a client that can read user session cookies securely.
 export async function createClient() {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
 
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
             cookies: {
-                get(name: string) {
-                    // Uses the standard Next.js method for reading cookies
-                    return cookieStore.get(name)?.value;
+                // FIX: Use getAll() - This is required for Next.js 15+
+                getAll() {
+                    return cookieStore.getAll();
                 },
-                // We need set and remove defined for the server client to function correctly
-                set(name: string, value: string, options: any) {
-                    cookieStore.set(name, value, options);
-                },
-                remove(name: string, options: any) {
-                    cookieStore.delete(name, options);
+                setAll(cookiesToSet) {
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            cookieStore.set(name, value, options)
+                        );
+                    } catch {
+                        // The `setAll` method was called from a Server Component.
+                        // This can be ignored if you have middleware refreshing user sessions.
+                    }
                 },
             },
         }

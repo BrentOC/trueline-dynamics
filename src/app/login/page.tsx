@@ -1,6 +1,7 @@
 // src/app/login/page.tsx
 "use client";
 
+import { useEffect } from 'react'; // <--- Added useEffect
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabaseClient } from '@/utils/supabase/auth-client';
@@ -9,12 +10,20 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
     const router = useRouter();
 
-    // Redirect to the home page after successful sign-in
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (session?.user && event === 'SIGNED_IN') {
-            router.push('/');
-        }
-    });
+    // FIX: Moved the listener inside useEffect to prevent the "component not mounted" error
+    useEffect(() => {
+        const {
+            data: { subscription },
+        } = supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session?.user && event === 'SIGNED_IN') {
+                router.push('/'); // Go home
+                router.refresh(); // Update the UI to show "Hello, Admin"
+            }
+        });
+
+        // Cleanup subscription on unmount
+        return () => subscription.unsubscribe();
+    }, [router]);
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -28,16 +37,15 @@ export default function LoginPage() {
                         variables: {
                             default: {
                                 colors: {
-                                    brand: '#FFC72C', // Amazon-style yellow for buttons
+                                    brand: '#FFC72C',
                                     brandAccent: '#e3b200',
                                 },
                             },
                         },
                     }}
-                    // We only allow email/password for basic testing
                     providers={[]}
                     redirectTo={process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000/'}
-                    view="sign_in" // Default view when the page loads
+                    view="sign_in"
                 />
             </div>
         </div>

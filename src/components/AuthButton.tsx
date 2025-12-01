@@ -14,20 +14,27 @@ export default function AuthButton() {
 
     // 1. Check current user session on load
     useEffect(() => {
-        supabaseClient.auth.getUser().then(({ data }) => {
+        const getUser = async () => {
+            const { data } = await supabaseClient.auth.getUser();
             setUser(data.user);
             setLoading(false);
-        });
+        };
+        getUser();
     }, []);
 
-    // 2. Handle sign out logic
+    // 2. Handle sign out logic (DIRECT CLIENT SIDE)
     const handleSignOut = async () => {
-        const response = await fetch('/api/auth/signout', { method: 'POST' });
-        if (response.ok) {
-            // Force the page to reload and clear the state
-            router.refresh();
+        // We call signOut directly on the client. 
+        // This clears the browser cookies immediately.
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+            console.error("Sign out error:", error);
+            alert('Sign out failed! Check console.');
         } else {
-            alert('Sign out failed!');
+            // Force the page to reload so the UI updates to "Sign In"
+            router.refresh();
+            setUser(null); // Clear local state immediately
         }
     };
 
