@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default to Dark Mode */
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  
+  /* Additional tokens */
+  --card-bg: #121212;
+  --card-border: #27272a;
+  --accent: #4ADE80;
+  --accent-hover: #45c975;
+  --border: #27272a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Force dark mode styles as default without media query dependency if desired, 
+   or keep basic variables. Since user wants "Dark Mode" always: */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Common Utility Classes for the new theme */
+.chip {
+  @apply px-4 py-2 rounded-full text-sm font-medium border;
+}
+
+.card-glass {
+  @apply bg-[#121212] border border-[#27272a] rounded-2xl;
 }
