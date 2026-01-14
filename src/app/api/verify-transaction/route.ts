@@ -3,14 +3,20 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase Admin Client (Bypasses RLS to ensure we can always write the order)
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Client initialization moved inside handler to prevent build-time errors
+
 
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
+
+        // Initialize Supabase Client
+        // Note: Use service role key if you need to bypass RLS. Currently using anon key.
+        const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
         const reference = searchParams.get('reference');
 
         if (!reference) {
