@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://trueline-dynamics.com'),
   title: {
     template: '%s | TrueLine Dynamics',
     default: 'TrueLine Dynamics - Premium CNC Tooling & Industrial Supplies',

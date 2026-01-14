@@ -40,8 +40,15 @@ export async function updateSession(request: NextRequest) {
         if (!user) {
             return NextResponse.redirect(new URL('/login', request.url))
         }
-        // In a real app, check for admin role here
-        // if (user.role !== 'admin') ...
+
+        // Check for admin role in user_metadata
+        // This assumes you set { data: { role: 'admin' } } when creating the admin user
+        const userRole = user.user_metadata?.role;
+
+        if (userRole !== 'admin') {
+            // Redirect unauthorized users to home or a dedicated unauthorized page
+            return NextResponse.redirect(new URL('/', request.url))
+        }
     }
 
     if (request.nextUrl.pathname.startsWith('/account') && !user) {

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
     try {
-        const { items, email } = await request.json();
+        const { items, email, userId } = await request.json();
 
         // 1. Calculate total amount in CENTS (ZAR 1.00 = 100 cents)
         const totalAmount = items.reduce(
@@ -26,6 +26,7 @@ export async function POST(request: Request) {
                 currency: 'ZAR',
                 callback_url: `${request.headers.get("origin")}/success`, // Redirects to our success page
                 metadata: {
+                    user_id: userId, // Store the user ID in Paystack metadata
                     cart_items: items.map((item: any) => ({
                         id: item.id,
                         name: item.name,

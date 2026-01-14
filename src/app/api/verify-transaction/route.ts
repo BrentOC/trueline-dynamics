@@ -47,11 +47,13 @@ export async function GET(request: Request) {
         // 3. SAVE ORDER to Supabase
         // We get the cart items back from the Paystack metadata we sent earlier!
         const cartItems = metadata?.cart_items || [];
+        const userId = metadata?.user_id || null;
 
         // A. Insert into 'orders' table
         const { data: orderData, error: orderError } = await supabase
             .from('orders')
             .insert({
+                user_id: userId,
                 user_email: customer.email,
                 amount: amount / 100, // Convert back from cents to Rands
                 payment_ref: reference,

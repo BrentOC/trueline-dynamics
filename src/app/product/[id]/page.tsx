@@ -2,18 +2,49 @@ import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { CheckIcon } from '@heroicons/react/24/solid';
+import { Metadata } from "next";
 import ProductActions from '@/components/ProductActions';
 
 // Force dynamic rendering so we always get fresh data (or use revalidate)
 export const dynamic = 'force-dynamic';
 
 interface ProductPageProps {
-    params: Promise<{
+    params: {
         id: string;
-    }>;
+    };
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+// Mock data fetching for metadata (using the same object as component for now)
+const getProduct = (id: string) => {
+    // In a real app, fetch from Supabase here
+    return {
+        id,
+        name: "Solid Carbide End Mill",
+        description: "High performance solid carbide end mill for precision machining.",
+        image: "https://placehold.co/400x400"
+    };
+};
+
+type Props = {
+    params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { id } = await params;
+    const product = getProduct(id);
+
+    return {
+        title: product.name,
+        description: product.description,
+        openGraph: {
+            title: product.name,
+            description: product.description,
+            images: [product.image],
+        },
+    };
+}
+
+export default async function ProductPage({ params }: Props) {
     const { id } = await params;
     const supabase = await createClient();
 

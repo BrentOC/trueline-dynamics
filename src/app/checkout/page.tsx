@@ -3,11 +3,25 @@
 
 import { useCart } from "@/context/CartContext";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { supabaseClient } from "@/utils/supabase/auth-client";
+import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
     const { cart, totalItems, removeFromCart } = useCart();
     const [loading, setLoading] = useState(false);
+    const [userEmail, setUserEmail] = useState<string>("customer@trueline.co.za");
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                if (user.email) setUserEmail(user.email);
+                setUserId(user.id);
+            }
+        };
+        getUser();
+    }, []);
 
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -22,7 +36,8 @@ export default function CheckoutPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     items: cart,
-                    email: "customer@trueline.co.za", // Static email for testing
+                    email: userEmail,
+                    userId: userId, // Pass the user ID
                 }),
             });
 
