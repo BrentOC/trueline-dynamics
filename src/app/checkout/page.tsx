@@ -3,7 +3,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { supabaseClient } from "@/utils/supabase/auth-client";
+import { createClient } from "@/utils/supabase/auth-client";
 import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
@@ -11,6 +11,7 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [userEmail, setUserEmail] = useState<string>("customer@trueline.co.za");
     const [userId, setUserId] = useState<string | null>(null);
+    const supabaseClient = createClient();
 
     useEffect(() => {
         const getUser = async () => {

@@ -4,13 +4,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { supabaseClient } from '@/utils/supabase/auth-client';
+import { createClient } from '@/utils/supabase/auth-client';
 import { User } from '@supabase/supabase-js';
 
 export default function AuthButton() {
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const supabaseClient = createClient();
 
     // 1. Check current user session on load
     useEffect(() => {

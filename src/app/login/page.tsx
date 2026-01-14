@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { supabaseClient } from '@/utils/supabase/auth-client';
+import { createClient } from '@/utils/supabase/auth-client';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -16,6 +16,7 @@ export default function LoginPage() {
         password: '',
         agreeToTerms: false
     });
+    const supabaseClient = createClient();
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();

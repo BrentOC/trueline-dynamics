@@ -3,11 +3,12 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { supabaseClient } from "@/utils/supabase/auth-client";
+import { createClient } from "@/utils/supabase/auth-client";
 
 export default function OrderHistory() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const supabaseClient = createClient();
 
     useEffect(() => {
         const fetchOrders = async () => {

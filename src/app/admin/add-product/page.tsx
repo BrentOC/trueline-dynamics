@@ -2,12 +2,13 @@
 "use client";
 
 import { useState } from "react";
-import { supabaseClient } from "@/utils/supabase/auth-client";
+import { createClient } from "@/utils/supabase/auth-client";
 import { PhotoIcon } from "@heroicons/react/24/outline";
 
 export default function AddProductPage() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const supabaseClient = createClient();
 
     // Form State
     const [name, setName] = useState("");
