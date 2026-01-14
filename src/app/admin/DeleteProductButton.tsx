@@ -2,13 +2,14 @@
 "use client";
 
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { supabaseClient } from '@/utils/supabase/auth-client';
+import { createClient } from '@/utils/supabase/auth-client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function DeleteProductButton({ id }: { id: number }) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const supabaseClient = createClient();
 
     const handleDelete = async () => {
         const confirm = window.confirm("Are you sure you want to delete this product? This cannot be undone.");
