@@ -9,6 +9,7 @@ interface CartItem {
   price: number;
   image_url: string | null;
   quantity: number;
+  category: string;
 }
 
 interface CartContextType {
@@ -32,12 +33,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       } else {
-        return [...prevCart, { 
-            id: product.id, 
-            name: product.name, 
-            price: product.price, 
-            image_url: product.image_url, 
-            quantity: 1 
+        return [...prevCart, {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image_url: product.image_url,
+          quantity: 1,
+          category: product.category || 'Uncategorized'
         }];
       }
     });

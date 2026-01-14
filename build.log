@@ -1,0 +1,40 @@
+
+> trueline-dynamics@0.1.0 build
+> next build
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   ▲ Next.js 16.0.4 (Turbopack)
+   - Environments: .env.local
+
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Compiled successfully in 3.9s
+   Running TypeScript ...
+   Collecting page data using 7 workers ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages using 7 workers (0/22) ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages using 7 workers (5/22) 
+   Generating static pages using 7 workers (10/22) 
+   Generating static pages using 7 workers (16/22) 
+ ⨯ useSearchParams() should be wrapped in a suspense boundary at page "/success". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at S (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\.next\server\chunks\ssr\node_modules_next_cf02c53c._.js:2:2111)
+    at p (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\.next\server\chunks\ssr\node_modules_next_cf02c53c._.js:4:4847)
+    at g (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\.next\server\chunks\ssr\src_app_success_page_tsx_25d7a20e._.js:1:1343)
+    at ar (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:84366)
+    at aa (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:86185)
+    at as (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:107952)
+    at ao (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:105374)
+    at an (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:84718)
+    at aa (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:86234)
+    at aa (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\next\dist\compiled\next-server\app-page-turbo.runtime.prod.js:2:104714)
+Error occurred prerendering page "/success". Read more: https://nextjs.org/docs/messages/prerender-error
+Export encountered an error on /success/page: /success, exiting the build.
+ ⨯ Next.js build worker exited with code: 1 and signal: null
