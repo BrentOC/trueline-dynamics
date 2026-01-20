@@ -64,6 +64,17 @@ export async function POST(request: Request) {
             const status = rpcResult.status;
 
             if (status === 'SUCCESS') {
+                // Enterprise: Send Transactional Email
+                const { sendOrderConfirmationEmail } = await import('@/lib/email');
+                // Use event.waitUntil to not block the response (if Next.js runtime supports it, or just await)
+                // For reliability here, we await.
+                await sendOrderConfirmationEmail(
+                    customer.email,
+                    reference,
+                    amount / 100,
+                    cartItems
+                );
+
                 return NextResponse.json({ received: true });
             } else if (status === 'ALREADY_EXISTS') {
                 return NextResponse.json({ received: true, message: 'Order already processed' });

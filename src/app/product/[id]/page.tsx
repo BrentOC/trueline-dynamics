@@ -65,8 +65,26 @@ export default async function ProductPage({ params }: Props) {
     // For now, we'll display them if they are in the description or a specific field
     // In a real app, you'd have a 'specifications' column.
 
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: product.name,
+        image: product.image_url,
+        description: product.description,
+        offers: {
+            '@type': 'Offer',
+            priceCurrency: 'ZAR',
+            price: (product.price / 100).toFixed(2),
+            availability: product.stock_count > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        }
+    };
+
     return (
         <div className="bg-[#0a0a0a] min-h-screen text-white text-sm">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             {/* Breadcrumb / Top Bar (Optional, simpler for now) */}
             <div className="border-b border-[#27272a] bg-[#121212] py-3 px-6 mb-6">
                 <span className="text-gray-500">Products</span> <span className="text-gray-600 mx-2">/</span> <span className="text-[#4ADE80]">{product.category || 'Tools'}</span>
