@@ -32,11 +32,11 @@ export async function POST(request: Request) {
             const { data } = event;
             const { reference, metadata, customer, amount } = data;
 
-            // Initialize Supabase (Use Service Role Key ideally, or Anon if RLS allows)
-            // Using logic from verify-transaction for consistency
+            // Initialize Supabase (Use Service Role Key for Admin Access)
+            // This bypasses RLS, which is required for webhooks writing data without a user session
             const supabase = createClient(
                 process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                process.env.SUPABASE_SERVICE_ROLE_KEY!
             );
 
             // 3. Idempotency Check

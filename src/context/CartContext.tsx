@@ -75,7 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cart]);
 
   const addToCart = async (product: any) => {
-    // Optimistic Update
+    // 1. Optimistic Update (Functional for safety)
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -94,22 +94,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // DB Sync
+    // 2. DB Sync
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      // We need to know the NEW quantity.
-      // Since setState is async, we calculate it again or use a helper.
-      // For simplicity, we just upsert based on the product.
-      // But we need the current quantity. 
-      // Let's refetch state? No.
-      // Better: Calculate new quantity from prevCart logic.
-      const currentItem = cart.find(i => i.id === product.id);
-      const newQuantity = currentItem ? currentItem.quantity + 1 : 1;
+      // Safe Pattern: Fetch the LATEST quantity from the DB before upserting (if possible)
+      // OR rely on a functional upsert if Supabase supported it directly via JS SDK easily (it doesn't for specific cols).
+      // Best approach for this context: Fetch the specific item row to be sure.
+      const { data: currentDbItem } = await supabase
+        .from('cart_items')
+        .select('quantity')
+        .eq('user_id', user.id)
+        .eq('product_id', product.id)
+        .single();
+
+      // Calculate new quantity based on DB reality or fallback to 1
+      const nextQty = (currentDbItem?.quantity || 0) + 1;
 
       await supabase.from('cart_items').upsert({
         user_id: user.id,
         product_id: product.id,
-        quantity: newQuantity
+        quantity: nextQty
       });
     }
   };

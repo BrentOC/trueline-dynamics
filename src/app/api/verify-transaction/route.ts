@@ -2,16 +2,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase Admin Client (Bypasses RLS to ensure we can always write the order)
-// Client initialization moved inside handler to prevent build-time errors
-
-
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
 
-        // Initialize Supabase Client
-        // Note: Use service role key if you need to bypass RLS. Currently using anon key.
+        // Initialize Supabase Client (Anon is fine for reading public/user data)
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -23,7 +18,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Missing reference' }, { status: 400 });
         }
 
-        // 1. Verify with Paystack
+        // 1. Verify with Paystack (Optional: Double check status)
         const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
             method: 'GET',
             headers: {
@@ -34,62 +29,30 @@ export async function GET(request: Request) {
         const data = await response.json();
 
         if (!data.status || data.data.status !== 'success') {
-            return NextResponse.json({ verified: false, message: "Payment verification failed." });
+            return NextResponse.json({ verified: false, message: "Payment verification failed or pending." });
         }
 
-        const { amount, metadata, customer } = data.data;
-
-        // 2. CHECK: Has this order already been saved? (Prevent duplicates on refresh)
-        const { data: existingOrder } = await supabase
+        // 2. Poll Supabase: Has the WEBHOOK created the order yet?
+        // In a real frontend, you might poll this endpoint every 2s until success
+        const { data: existingOrder, error } = await supabase
             .from('orders')
             .select('id')
             .eq('payment_ref', reference)
             .single();
 
         if (existingOrder) {
-            return NextResponse.json({ verified: true, message: 'Order already recorded.' });
+            return NextResponse.json({
+                verified: true,
+                message: 'Order confirmed!',
+                orderId: existingOrder.id
+            });
         }
 
-        // 3. SAVE ORDER to Supabase
-        // We get the cart items back from the Paystack metadata we sent earlier!
-        const cartItems = metadata?.cart_items || [];
-        const userId = metadata?.user_id || null;
-
-        // A. Insert into 'orders' table
-        const { data: orderData, error: orderError } = await supabase
-            .from('orders')
-            .insert({
-                user_id: userId,
-                user_email: customer.email,
-                amount: amount / 100, // Convert back from cents to Rands
-                payment_ref: reference,
-                status: 'paid'
-            })
-            .select()
-            .single();
-
-        if (orderError) throw orderError;
-
-        // B. Insert into 'order_items' table
-        const itemsToInsert = cartItems.map((item: any) => ({
-            order_id: orderData.id,
-            product_id: item.id,
-            product_name: item.name,
-            quantity: item.quantity,
-            price: 0 // Ideally fetch this from DB, but for MVP we assume paid price is correct
-        }));
-
-        const { error: itemsError } = await supabase
-            .from('order_items')
-            .insert(itemsToInsert);
-
-        if (itemsError) throw itemsError;
-
-        // 4. Success!
+        // If Paystack says success, but Webhook hasn't fired yet
         return NextResponse.json({
-            verified: true,
-            message: 'Order placed successfully!',
-            orderId: orderData.id
+            verified: false,
+            message: 'Payment received. Waiting for order confirmation...',
+            pending: true
         });
 
     } catch (err: any) {
