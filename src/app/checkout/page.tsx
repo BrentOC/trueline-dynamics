@@ -82,7 +82,7 @@ export default function CheckoutPage() {
                                     <p className="font-bold text-white text-lg">{item.name}</p>
                                     <p className="text-xs text-gray-400 line-clamp-3">Category: <span className="text-[#4ADE80]">{item.category}</span></p>
                                     <p className="text-xs text-gray-400">Quantity: {item.quantity}</p>
-                                    <p className="text-xl font-bold text-white">R {(item.price * item.quantity).toFixed(2)}</p>
+                                    <p className="text-xl font-bold text-white">R {((item.price * item.quantity) / 100).toFixed(2)}</p>
                                 </div>
                                 <div className="flex flex-col space-y-2 my-auto justify-self-end">
                                     <button
@@ -103,7 +103,7 @@ export default function CheckoutPage() {
                         <>
                             <h2 className="whitespace-nowrap text-white text-lg mb-4">
                                 Subtotal ({totalItems} items): <br />
-                                <span className="font-bold text-2xl text-white">R {total.toFixed(2)}</span>
+                                <span className="font-bold text-2xl text-white">R {(total / 100).toFixed(2)}</span>
                             </h2>
 
                             <button
