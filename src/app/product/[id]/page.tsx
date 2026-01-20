@@ -5,8 +5,9 @@ import { CheckIcon } from '@heroicons/react/24/solid';
 import { Metadata } from "next";
 import ProductActions from '@/components/ProductActions';
 
-// Force dynamic rendering so we always get fresh data (or use revalidate)
-export const dynamic = 'force-dynamic';
+// Enterprise: Use ISR (Incremental Static Regeneration)
+// Revalidate this page every 60 seconds
+export const revalidate = 60;
 
 interface ProductPageProps {
     params: {
@@ -14,24 +15,25 @@ interface ProductPageProps {
     };
 }
 
-// Mock data fetching for metadata (using the same object as component for now)
-const getProduct = (id: string) => {
-    // In a real app, fetch from Supabase here
-    return {
-        id,
-        name: "Solid Carbide End Mill",
-        description: "High performance solid carbide end mill for precision machining.",
-        image: "https://placehold.co/400x400"
-    };
-};
-
 type Props = {
     params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { id } = await params;
-    const product = getProduct(id);
+    const supabase = await createClient(); // Use real data for metadata
+
+    const { data: product } = await supabase
+        .from('products')
+        .select('name, description, image_url')
+        .eq('id', id)
+        .single();
+
+    if (!product) {
+        return {
+            title: "Product Not Found",
+        };
+    }
 
     return {
         title: product.name,
@@ -39,15 +41,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title: product.name,
             description: product.description,
-            images: [product.image],
+            images: product.image_url ? [product.image_url] : [],
         },
     };
 }
 
 export default async function ProductPage({ params }: Props) {
     const { id } = await params;
-    const supabase = await createClient();
 
+    // Fetch product data
+    const supabase = await createClient();
     const { data: product, error } = await supabase
         .from('products')
         .select('*')

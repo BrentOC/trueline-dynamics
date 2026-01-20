@@ -21,6 +21,11 @@ export default function Error({
             <p className="text-gray-400 mb-8 max-w-md">
                 We apologize for the inconvenience. Our team has been notified.
             </p>
+            {error.digest && (
+                <p className="text-xs text-gray-500 mb-4 bg-gray-900 px-3 py-1 rounded">
+                    Reference ID: {error.digest}
+                </p>
+            )}
             <button
                 onClick={
                     // Attempt to recover by trying to re-render the segment
