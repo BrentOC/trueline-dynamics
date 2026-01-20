@@ -4,15 +4,17 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { createClient } from '@/utils/supabase/client';
 
 // The content component that uses useSearchParams
 function SuccessContent() {
     const searchParams = useSearchParams();
     const reference = searchParams.get('reference');
 
-    const [verificationStatus, setVerificationStatus] = useState('Verifying...');
+    const [verificationStatus, setVerificationStatus] = useState('Verifying Payment...');
     const [isVerified, setIsVerified] = useState(false);
     const [loading, setLoading] = useState(true);
+    const supabase = createClient();
 
     useEffect(() => {
         if (!reference) {
@@ -21,49 +23,73 @@ function SuccessContent() {
             return;
         }
 
-        const verifyTransaction = async () => {
+        // 1. Initial Check (API)
+        // We still check once in case it already finished
+        const checkStatus = async () => {
             try {
-                // Call our secure backend API route
                 const response = await fetch(`/api/verify-transaction?reference=${reference}`);
                 const data = await response.json();
-
                 if (data.verified) {
-                    setVerificationStatus(`Payment Successful! Reference: ${reference}.`);
+                    setVerificationStatus(`Payment Successful! Order Ref: ${reference}`);
                     setIsVerified(true);
-                    // In a real app, you would dispatch an action here to SAVE the order to Supabase.
-                    // Also, clear the cart: clearCart();
-                } else {
-                    setVerificationStatus(data.message || "Payment verification failed.");
-                    setIsVerified(false);
+                    setLoading(false);
                 }
-            } catch (err) {
-                setVerificationStatus("An error occurred during verification.");
-                setIsVerified(false);
-            } finally {
-                setLoading(false);
+            } catch (e) {
+                console.error(e);
             }
         };
 
-        verifyTransaction();
-    }, [reference]);
+        checkStatus();
+
+        // 2. Realtime Subscription (The Enterprise Way)
+        const channel = supabase
+            .channel('realtime-orders')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'orders',
+                    filter: `payment_ref=eq.${reference}`
+                },
+                (payload) => {
+                    console.log('Realtime Order Confirmed!', payload);
+                    setVerificationStatus(`Payment Successful! Order Ref: ${reference}`);
+                    setIsVerified(true);
+                    setLoading(false);
+                }
+            )
+            .subscribe();
+
+        // Cleanup
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [reference, supabase]);
 
     return (
         <div className="flex flex-col p-10 bg-white shadow-lg rounded-xl">
             <div className="flex items-center space-x-2 mb-6 border-b pb-4">
                 {loading ? (
-                    <span className="text-blue-500 text-xl font-bold">Processing Order...</span>
+                    <div className="flex items-center space-x-2">
+                        <span className="animate-spin h-6 w-6 border-4 border-blue-500 rounded-full border-t-transparent"></span>
+                        <span className="text-blue-500 text-xl font-bold">Confirming Order...</span>
+                    </div>
                 ) : isVerified ? (
                     <CheckCircleIcon className="text-green-500 h-10" />
                 ) : (
-                    <XCircleIcon className="text-red-500 h-10" />
+                    <XCircleIcon className="text-red-500 h-10" /> // Only show if explicit fail or timeout
                 )}
-                <h1 className="text-2xl md:text-3xl font-bold">{verificationStatus}</h1>
+                {/* Status Text (Only show if not loading or verified) */}
+                {!loading && (
+                    <h1 className="text-2xl md:text-3xl font-bold">{verificationStatus}</h1>
+                )}
             </div>
 
             <p className="text-gray-600">
-                {loading ? "Checking Paystack for confirmation..." : isVerified ?
-                    "Thank you for your order! Your TrueLine Dynamics CNC cutters will be processed immediately. You will receive an email confirmation shortly." :
-                    "Your payment could not be verified. Please contact customer support with your reference number."
+                {loading ? "Waiting for secure confirmation from payment gateway..." : isVerified ?
+                    "Thank you for your order! Your TrueLine Dynamics CNC cutters will be processed immediately." :
+                    "If this takes too long, please check your email for confirmation."
                 }
             </p>
 

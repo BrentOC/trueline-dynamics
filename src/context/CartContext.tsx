@@ -31,15 +31,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const initializeCart = async () => {
       try {
         // 1. Try Local Storage first (fastest)
-        const localCart = localStorage.getItem('trueline_cart');
-        if (localCart) {
-          setCart(JSON.parse(localCart));
+        const localCartJson = localStorage.getItem('trueline_cart');
+        const localCart = localCartJson ? JSON.parse(localCartJson) : [];
+
+        if (localCart.length > 0) {
+          setCart(localCart);
         }
 
         // 2. Check Auth & Sync with DB
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
+          // A. MERGE STRATEGY: If we have local items, push them to DB first
+          if (localCart.length > 0) {
+            const itemsToMerge = localCart.map((item: any) => ({
+              id: item.id,
+              quantity: item.quantity
+            }));
+
+            // Ignore error on merge, proceed to fetch
+            await supabase.rpc('merge_carts', { p_items: itemsToMerge }).catch(e => console.error(e));
+
+            localStorage.removeItem('trueline_cart'); // Clear local after attempt
+          }
+
+          // B. Fetch Final Merged Cart
           const { data: dbItems, error } = await supabase
             .from('cart_items')
             .select('product_id, quantity, products(id, name, price, image_url, category)');
@@ -54,8 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
               quantity: item.quantity,
               category: item.products.category || 'Uncategorized'
             }));
-            // Enterprise decision: DB overrides Local on login for consistency
-            // Alternatively, we could merge them here.
+
             setCart(mergedCart);
           }
         }
@@ -97,9 +112,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // 2. DB Sync
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      // Safe Pattern: Fetch the LATEST quantity from the DB before upserting (if possible)
-      // OR rely on a functional upsert if Supabase supported it directly via JS SDK easily (it doesn't for specific cols).
-      // Best approach for this context: Fetch the specific item row to be sure.
+      // Safe Pattern: Fetch the LATEST quantity from the DB before upserting
       const { data: currentDbItem } = await supabase
         .from('cart_items')
         .select('quantity')
