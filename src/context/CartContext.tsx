@@ -109,25 +109,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // 2. DB Sync
+    // 2. DB Sync (Atomic RPC)
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      // Safe Pattern: Fetch the LATEST quantity from the DB before upserting
-      const { data: currentDbItem } = await supabase
-        .from('cart_items')
-        .select('quantity')
-        .eq('user_id', user.id)
-        .eq('product_id', product.id)
-        .single();
-
-      // Calculate new quantity based on DB reality or fallback to 1
-      const nextQty = (currentDbItem?.quantity || 0) + 1;
-
-      await supabase.from('cart_items').upsert({
-        user_id: user.id,
-        product_id: product.id,
-        quantity: nextQty
+      // Use the RPC to safely handle concurrent increments
+      const { error } = await supabase.rpc('increment_cart_item', {
+        p_product_id: product.id,
+        p_quantity: 1
       });
+
+      if (error) {
+        console.error("Cart RPC Error", error);
+        // Fallback? Ideally retry or alert user
+      }
     }
   };
 

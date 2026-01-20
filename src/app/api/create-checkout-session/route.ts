@@ -73,7 +73,7 @@ export async function POST(request: Request) {
             });
         }
 
-        const amountInCents = Math.round(totalAmount * 100); // Ensure integer
+        const amountInCents = totalAmount; // Already in cents from DB
 
         // 4. Initialize Paystack Transaction
         const response = await fetch(

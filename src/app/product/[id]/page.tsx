@@ -117,7 +117,7 @@ export default async function ProductPage({ params }: Props) {
                 <div className="lg:col-span-2">
                     <div className="bg-[#121212] border border-[#27272a] rounded-2xl p-6 shadow-2xl sticky top-24">
                         <div className="text-3xl font-bold text-white mb-2">
-                            R {(product.price).toFixed(2)}
+                            R {(product.price / 100).toFixed(2)}
                         </div>
                         <div className="text-xs text-gray-500 mb-6 font-medium">
                             + Free Shipping on orders over R1000

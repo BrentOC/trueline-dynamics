@@ -45,7 +45,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="mt-auto">
         <div className="flex justify-between items-center mb-4">
-          <p className="text-xl font-extrabold text-white">R {product.price}</p>
+          <p className="text-xl font-extrabold text-white">R {(product.price / 100).toFixed(2)}</p>
           {product.stock_quantity > 0 ? (
             <span className="text-[10px] text-[#4ADE80] font-bold flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80]"></span> In Stock
