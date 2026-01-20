@@ -50,7 +50,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }));
 
             // Ignore error on merge, proceed to fetch
-            await supabase.rpc('merge_carts', { p_items: itemsToMerge }).catch(e => console.error(e));
+            const { error: mergeError } = await supabase.rpc('merge_carts', { p_items: itemsToMerge });
+            if (mergeError) console.warn("Merge error (non-fatal):", mergeError);
 
             localStorage.removeItem('trueline_cart'); // Clear local after attempt
           }
