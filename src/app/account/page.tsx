@@ -4,12 +4,38 @@ import { CubeIcon, CreditCardIcon, MapPinIcon, UserIcon } from '@heroicons/react
 
 export default async function AccountPage() {
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Check if user is admin
+    const { data: profile } = user ? await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single() : { data: null };
+
+    const isAdmin = profile?.role === 'admin';
 
     return (
         <div className="max-w-screen-xl mx-auto p-6 min-h-screen">
             <h1 className="text-3xl font-normal mb-6">Your Account</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+
+                {/* Admin Dashboard (Visible only to Admins) */}
+                {isAdmin && (
+                    <Link href="/admin" className="block group">
+                        <div className="border border-[#4ADE80]/50 bg-[#4ADE80]/5 rounded-lg p-4 flex items-center gap-4 hover:bg-[#4ADE80]/10 transition-colors h-full">
+                            <div className="p-2">
+                                <CubeIcon className="h-10 w-10 text-[#4ADE80]" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-[#4ADE80] group-hover:underline">Admin Dashboard</h2>
+                                <p className="text-sm text-gray-400">Manage products, orders, and users</p>
+                            </div>
+                        </div>
+                    </Link>
+                )}
 
                 {/* FIXED LINK: /orders -> /account/orders */}
                 <Link href="/account/orders" className="block group">
