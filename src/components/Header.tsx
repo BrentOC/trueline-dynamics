@@ -67,10 +67,10 @@ export default function Header() {
                     {/* Auth Button */}
                     <AuthButton />
 
-                    <div className="link hidden md:block text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    <Link href="/account/orders" className="link hidden md:block text-gray-400 hover:text-white transition-colors cursor-pointer">
                         <p className="text-xs">Returns</p>
                         <p className="font-bold">& Orders</p>
-                    </div>
+                    </Link>
 
                     <Link href="/checkout" className="relative link flex items-center group">
                         <span className="absolute -top-1 -right-1 h-5 w-5 bg-[#4ADE80] text-center rounded-full text-black text-xs font-bold flex items-center justify-center">
