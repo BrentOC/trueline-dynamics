@@ -33,7 +33,12 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error } = await supabase.auth.getUser()
+
+    console.log(`[Middleware] Path: ${request.nextUrl.pathname}`);
+    console.log(`[Middleware] Cookies present:`, request.cookies.getAll().map(c => c.name));
+    console.log(`[Middleware] User found: ${!!user}`);
+    if (error) console.log(`[Middleware] Auth Error: ${error.message}`);
 
     // Simple protection: Redirect to login if accessing protected routes without user
     if ((request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/account')) && !user) {
