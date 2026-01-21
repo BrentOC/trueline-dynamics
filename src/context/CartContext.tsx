@@ -28,8 +28,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    const initializeCart = async () => {
+    const initializeCart = async (user: any) => {
       try {
+        setIsLoading(true);
         // 1. Try Local Storage first (fastest)
         const localCartJson = localStorage.getItem('trueline_cart');
         const localCart = localCartJson ? JSON.parse(localCartJson) : [];
@@ -39,8 +40,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
 
         // 2. Check Auth & Sync with DB
-        const { data: { user } } = await supabase.auth.getUser();
-
         if (user) {
           // A. MERGE STRATEGY: If we have local items, push them to DB first
           if (localCart.length > 0) {
@@ -82,7 +81,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    initializeCart();
+    // Initial check
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      initializeCart(user);
+    });
+
+    // Listen for changes (Login/Logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      initializeCart(session?.user || null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Sync to LocalStorage on every change

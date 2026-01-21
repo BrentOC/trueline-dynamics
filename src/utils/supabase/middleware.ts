@@ -35,23 +35,8 @@ export async function updateSession(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Protected Routes Logic
-    if (request.nextUrl.pathname.startsWith('/admin')) {
-        if (!user) {
-            return NextResponse.redirect(new URL('/login', request.url))
-        }
-
-        // Check for admin role in user_metadata
-        // This assumes you set { data: { role: 'admin' } } when creating the admin user
-        const userRole = user.user_metadata?.role;
-
-        if (userRole !== 'admin') {
-            // Redirect unauthorized users to home or a dedicated unauthorized page
-            return NextResponse.redirect(new URL('/', request.url))
-        }
-    }
-
-    if (request.nextUrl.pathname.startsWith('/account') && !user) {
+    // Simple protection: Redirect to login if accessing protected routes without user
+    if ((request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/account')) && !user) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
