@@ -4,8 +4,6 @@ import { CubeIcon, CreditCardIcon, MapPinIcon, UserIcon } from '@heroicons/react
 
 export default async function AccountPage() {
     const supabase = await createClient();
-    // In a real app, you'd fetch the user's profile and orders here
-    // const { data: { user } } = await supabase.auth.getUser();
 
     return (
         <div className="max-w-screen-xl mx-auto p-6 min-h-screen">
@@ -13,21 +11,21 @@ export default async function AccountPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-                {/* Orders */}
-                <Link href="/orders" className="block group">
+                {/* FIXED LINK: /orders -> /account/orders */}
+                <Link href="/account/orders" className="block group">
                     <div className="border border-gray-300 rounded-lg p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors h-full">
                         <div className="p-2">
                             <CubeIcon className="h-10 w-10 text-orange-600" />
                         </div>
                         <div>
                             <h2 className="text-lg font-medium text-gray-800 group-hover:underline">Your Orders</h2>
-                            <p className="text-sm text-gray-500">Track, return, or buy things again</p>
+                            <p className="text-sm text-gray-500">Track packages, view returns, and buy again</p>
                         </div>
                     </div>
                 </Link>
 
                 {/* Login & Security */}
-                <Link href="#" className="block group">
+                <Link href="/account/security" className="block group">
                     <div className="border border-gray-300 rounded-lg p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors h-full">
                         <div className="p-2">
                             <UserIcon className="h-10 w-10 text-orange-600" />
@@ -40,7 +38,7 @@ export default async function AccountPage() {
                 </Link>
 
                 {/* Addresses */}
-                <Link href="#" className="block group">
+                <Link href="/account/addresses" className="block group">
                     <div className="border border-gray-300 rounded-lg p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors h-full">
                         <div className="p-2">
                             <MapPinIcon className="h-10 w-10 text-orange-600" />
@@ -53,7 +51,7 @@ export default async function AccountPage() {
                 </Link>
 
                 {/* Payments */}
-                <Link href="#" className="block group">
+                <Link href="/account/payments" className="block group">
                     <div className="border border-gray-300 rounded-lg p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors h-full">
                         <div className="p-2">
                             <CreditCardIcon className="h-10 w-10 text-orange-600" />
