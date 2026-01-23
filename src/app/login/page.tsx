@@ -46,6 +46,7 @@ export default function LoginPage() {
                     password: formData.password
                 });
                 if (error) throw error;
+                router.refresh(); // Force Middleware to re-run and see the new cookie
                 router.push('/');
             }
         } catch (err: any) {

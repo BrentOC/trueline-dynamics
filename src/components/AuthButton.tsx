@@ -14,12 +14,25 @@ export default function AuthButton() {
     const supabaseClient = createClient();
 
     // 1. Check current user session on load
+    // 1. Check current user session on load & listen for changes
     useEffect(() => {
+        // Initial fetch
         supabaseClient.auth.getUser().then(({ data }) => {
             setUser(data.user);
             setLoading(false);
         });
-    }, []);
+
+        // Real-time listener
+        const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setLoading(false);
+            if (_event === 'SIGNED_OUT') {
+                router.refresh(); // Clear server caches
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, [router, supabaseClient]);
 
     // 2. Handle sign out logic
     const handleSignOut = async () => {

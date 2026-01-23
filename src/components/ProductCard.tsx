@@ -14,11 +14,15 @@ interface Product {
   image_url: string | null;
   specifications: any;
   stock_quantity: number;
+  stock_count?: number; // Added for compatibility with RPC logic
 }
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
   const image = product.image_url || "https://placehold.co/400x400?text=TrueLine+Tool";
+
+  // Use stock_count (RPC source of truth) if available, fallback to legacy
+  const stock = product.stock_count ?? product.stock_quantity ?? 0;
 
   return (
     <div className="relative flex flex-col m-5 bg-[#121212] z-30 p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:border-[#4ADE80]/50 transition-all duration-300 border border-[#27272a] group">
@@ -46,9 +50,9 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="mt-auto">
         <div className="flex justify-between items-center mb-4">
           <p className="text-xl font-extrabold text-white">R {(product.price / 100).toFixed(2)}</p>
-          {product.stock_quantity > 0 ? (
+          {stock > 0 ? (
             <span className="text-[10px] text-[#4ADE80] font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80]"></span> In Stock
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80]"></span> In Stock ({stock})
             </span>
           ) : (
             <span className="text-[10px] text-red-500 font-bold flex items-center gap-1">
