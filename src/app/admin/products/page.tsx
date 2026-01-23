@@ -37,7 +37,7 @@ export default async function AdminProductsPage() {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="relative h-10 w-10">
                                         <Image
-                                            src={product.image || 'https://via.placeholder.com/40'}
+                                            src={product.image || "https://placehold.co/400x400?text=No+Image"}
                                             alt={product.name}
                                             fill
                                             className="object-contain rounded"
