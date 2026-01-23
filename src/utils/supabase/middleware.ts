@@ -35,7 +35,7 @@ export async function updateSession(request: NextRequest) {
 
     // Use getSession for middleware routing to avoid flaky "getUser" network calls
     // causing redirect loops. RLS will still protect the data.
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session }, error } = await supabase.auth.getSession()
     const user = session?.user
 
     console.log(`[Middleware] Path: ${request.nextUrl.pathname}`);
