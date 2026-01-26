@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { supabaseAdmin, makeUserAdmin, deleteTestUser, seedUser } from './utils';
+import { supabaseAdmin, makeUserAdmin, deleteTestUser, seedUser, seedOrder } from './utils';
 
 test.describe('Admin Security', () => {
     test('guest viewing admin should redirect to login', async ({ page }) => {

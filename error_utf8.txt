@@ -1,0 +1,27 @@
+﻿
+Running 1 test using 1 worker
+
+  Ô£ÿ  1 [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) (12.6s)
+
+
+  1) [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 
+
+    AuthRetryableFetchError: fetch failed
+
+       at utils.ts:109
+
+      107 |
+      108 | export async function seedUser(email: string, password: string) {
+    > 109 |     const { data, error } = await supabaseAdmin.auth.admin.createUser({
+          |                             ^
+      110 |         email,
+      111 |         password,
+      112 |         email_confirm: true,
+        at _handleRequest (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\@supabase\auth-js\src\lib\fetch.ts:191:11)
+        at _request (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\@supabase\auth-js\src\lib\fetch.ts:157:16)
+        at GoTrueAdminApi.createUser (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\node_modules\@supabase\auth-js\src\GoTrueAdminApi.ts:194:14)
+        at seedUser (C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\e2e\utils.ts:109:29)
+        at C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\e2e\admin.spec.ts:50:27
+
+  1 failed
+    [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 

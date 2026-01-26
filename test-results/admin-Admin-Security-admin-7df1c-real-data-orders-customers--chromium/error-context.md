@@ -1,0 +1,180 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "TrueLine Dynamics" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e6]:
+          - generic [ref=e7]: TrueLine
+          - generic [ref=e8]: Dynamics
+      - generic [ref=e10] [cursor=pointer]:
+        - combobox [ref=e11]:
+          - option "All" [selected]
+          - option "End Mills"
+          - option "Inserts"
+        - textbox "Search products..." [ref=e12]
+        - button [ref=e13]:
+          - img [ref=e14]
+      - generic [ref=e16]:
+        - generic [ref=e18] [cursor=pointer]:
+          - paragraph [ref=e19]: Hello, test.admin.data.1769363669124
+          - paragraph [ref=e20]: Sign Out
+        - link "Returns & Orders" [ref=e21] [cursor=pointer]:
+          - /url: /account/orders
+          - paragraph [ref=e22]: Returns
+          - paragraph [ref=e23]: "& Orders"
+        - link "0 Cart" [ref=e24] [cursor=pointer]:
+          - /url: /checkout
+          - generic [ref=e25]: "0"
+          - img [ref=e26]
+          - paragraph [ref=e28]: Cart
+    - generic [ref=e29]:
+      - paragraph [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+        - text: All Categories
+      - link "End Mills" [ref=e33] [cursor=pointer]:
+        - /url: /search?category=End Mills
+      - link "Inserts" [ref=e34] [cursor=pointer]:
+        - /url: /search?category=Inserts
+      - link "New Arrivals" [ref=e35] [cursor=pointer]:
+        - /url: "#"
+      - link "Deals" [ref=e36] [cursor=pointer]:
+        - /url: "#"
+  - generic [ref=e37]:
+    - complementary [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e43]: T
+            - heading "TrueLine" [level=2] [ref=e44]
+          - generic [ref=e45]: Menu
+          - navigation [ref=e46]:
+            - link "Dashboard" [ref=e47] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e48]
+              - generic [ref=e50]: Dashboard
+            - link "Products" [ref=e51] [cursor=pointer]:
+              - /url: /admin/products
+              - img [ref=e52]
+              - generic [ref=e54]: Products
+            - link "Orders" [ref=e55] [cursor=pointer]:
+              - /url: /admin/orders
+              - img [ref=e56]
+              - generic [ref=e58]: Orders
+            - link "Customers" [ref=e59] [cursor=pointer]:
+              - /url: /admin/customers
+              - img [ref=e60]
+              - generic [ref=e62]: Customers
+        - link "Back to Store" [ref=e64] [cursor=pointer]:
+          - /url: /
+          - img [ref=e65]
+          - generic [ref=e67]: Back to Store
+    - main [ref=e69]:
+      - generic [ref=e72]:
+        - heading "Dashboard" [level=1] [ref=e73]
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - img [ref=e77]
+            - generic [ref=e79]:
+              - paragraph [ref=e80]: Total Sales
+              - paragraph [ref=e81]: R 4 899,90
+          - generic [ref=e82]:
+            - img [ref=e84]
+            - generic [ref=e86]:
+              - paragraph [ref=e87]: Total Orders
+              - paragraph [ref=e88]: "19"
+          - generic [ref=e89]:
+            - img [ref=e91]
+            - generic [ref=e93]:
+              - paragraph [ref=e94]: Total Products
+              - paragraph [ref=e95]: "4"
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - heading "Recent Orders" [level=2] [ref=e98]
+            - link "View All" [ref=e99] [cursor=pointer]:
+              - /url: /admin/orders
+          - table [ref=e102]:
+            - rowgroup [ref=e103]:
+              - row "Order ID Customer Date Status Total" [ref=e104]:
+                - columnheader "Order ID" [ref=e105]
+                - columnheader "Customer" [ref=e106]
+                - columnheader "Date" [ref=e107]
+                - columnheader "Status" [ref=e108]
+                - columnheader "Total" [ref=e109]
+            - rowgroup [ref=e110]:
+              - row "No orders found yet." [ref=e111]:
+                - cell "No orders found yet." [ref=e112]
+  - contentinfo [ref=e113]:
+    - generic [ref=e114] [cursor=pointer]: Back to top
+    - generic [ref=e115]:
+      - generic [ref=e116]:
+        - heading "Get to Know Us" [level=3] [ref=e117]
+        - list [ref=e118]:
+          - listitem [ref=e119]:
+            - link "Careers" [ref=e120] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e121]:
+            - link "Blog" [ref=e122] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e123]:
+            - link "About TrueLine Dynamics" [ref=e124] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e125]:
+            - link "Investor Relations" [ref=e126] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e127]:
+        - heading "Make Money with Us" [level=3] [ref=e128]
+        - list [ref=e129]:
+          - listitem [ref=e130]:
+            - link "Sell products on TrueLine" [ref=e131] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e132]:
+            - link "Sell on TrueLine Business" [ref=e133] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e134]:
+            - link "Become an Affiliate" [ref=e135] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e136]:
+            - link "Advertise Your Products" [ref=e137] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e138]:
+        - heading "TrueLine Payment Products" [level=3] [ref=e139]
+        - list [ref=e140]:
+          - listitem [ref=e141]:
+            - link "TrueLine Business Card" [ref=e142] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e143]:
+            - link "Shop with Points" [ref=e144] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e145]:
+            - link "Reload Your Balance" [ref=e146] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e147]:
+        - heading "Let Us Help You" [level=3] [ref=e148]
+        - list [ref=e149]:
+          - listitem [ref=e150]:
+            - link "Your Account" [ref=e151] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e152]:
+            - link "Your Orders" [ref=e153] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e154]:
+            - link "Shipping Rates & Policies" [ref=e155] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e156]:
+            - link "Returns & Replacements" [ref=e157] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e158]:
+            - link "Help" [ref=e159] [cursor=pointer]:
+              - /url: "#"
+    - generic [ref=e160]:
+      - generic [ref=e162]:
+        - generic [ref=e163]: TrueLine
+        - generic [ref=e164]: Dynamics
+      - paragraph [ref=e165]: © 1996-2024, TrueLine Dynamics, Inc. or its affiliates
+  - button "Open Next.js Dev Tools" [ref=e171] [cursor=pointer]:
+    - img [ref=e172]
+  - alert [ref=e175]
+```
