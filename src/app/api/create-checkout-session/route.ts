@@ -8,10 +8,21 @@ const CartItemSchema = z.object({
     quantity: z.number().min(1),
 });
 
+const ShippingAddressSchema = z.object({
+    full_address: z.string(),
+    street: z.string().optional(),
+    city: z.string().optional(),
+    province: z.string(),
+    postal_code: z.string().optional(),
+    lat: z.number().optional(),
+    lng: z.number().optional(),
+});
+
 const CheckoutSchema = z.object({
     items: z.array(CartItemSchema),
     email: z.string().email(),
     userId: z.string().optional().nullable(),
+    shippingAddress: ShippingAddressSchema.optional(),
 });
 
 export async function POST(request: Request) {
@@ -27,7 +38,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const { items, email, userId } = validation.data;
+        const { items, email, userId, shippingAddress } = validation.data;
 
         // 2. Fetch Prices from Database (Trust No One)
         const supabase = await createClient();
@@ -92,6 +103,7 @@ export async function POST(request: Request) {
                     metadata: {
                         user_id: userId,
                         cart_items: verifiedItems, // Send VERIFIED items back to webhook
+                        shipping_address: shippingAddress || null,
                     },
                 }),
             }

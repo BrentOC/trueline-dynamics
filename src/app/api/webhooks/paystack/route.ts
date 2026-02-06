@@ -34,6 +34,7 @@ export async function POST(request: Request) {
             // Validate metadata
             const cartItems = metadata?.cart_items || [];
             const userId = metadata?.user_id || null;
+            const shippingAddress = metadata?.shipping_address || null;
 
             if (cartItems.length === 0) {
                 return NextResponse.json({ received: true, message: 'No items in metadata' });
@@ -52,7 +53,8 @@ export async function POST(request: Request) {
                 p_user_id: userId,
                 p_user_email: customer.email,
                 p_amount: amount / 100, // ZAR
-                p_items: cartItems
+                p_items: cartItems,
+                p_shipping_address: shippingAddress
             });
 
             if (error) {
@@ -64,16 +66,28 @@ export async function POST(request: Request) {
             const status = rpcResult.status;
 
             if (status === 'SUCCESS') {
-                // Enterprise: Send Transactional Email
-                const { sendOrderConfirmationEmail } = await import('@/lib/email');
-                // Use event.waitUntil to not block the response (if Next.js runtime supports it, or just await)
-                // For reliability here, we await.
+                // Enterprise: Send Transactional Emails
+                const { sendOrderConfirmationEmail, sendAdminOrderNotification } = await import('@/lib/email');
+
+                // Customer confirmation email
                 await sendOrderConfirmationEmail(
                     customer.email,
                     reference,
                     amount / 100,
                     cartItems
                 );
+
+                // Admin notification email
+                if (process.env.ADMIN_EMAIL) {
+                    await sendAdminOrderNotification(
+                        process.env.ADMIN_EMAIL,
+                        reference,
+                        customer.email,
+                        amount / 100,
+                        cartItems,
+                        shippingAddress
+                    );
+                }
 
                 return NextResponse.json({ received: true });
             } else if (status === 'ALREADY_EXISTS') {

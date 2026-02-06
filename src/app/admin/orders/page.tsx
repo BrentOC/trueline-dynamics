@@ -1,7 +1,16 @@
 import { createClient } from '@/utils/supabase/server';
 import OrderStatusSelect from '@/components/admin/OrderStatusSelect';
+import { MapPinIcon } from '@heroicons/react/24/outline';
 
 export const dynamic = 'force-dynamic';
+
+interface ShippingAddress {
+    full_address?: string;
+    street?: string;
+    city?: string;
+    province?: string;
+    postal_code?: string;
+}
 
 export default async function AdminOrdersPage() {
     const supabase = await createClient();
@@ -36,10 +45,10 @@ export default async function AdminOrdersPage() {
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Order ID</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Customer</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Shipping</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Date</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Total</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-[#121212] divide-y divide-[#27272a] text-sm">
@@ -50,34 +59,54 @@ export default async function AdminOrdersPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                orders!.map((order) => (
-                                    <tr key={order.id} className="hover:bg-[#1f1f22] transition-colors group">
-                                        <td className="px-6 py-4 whitespace-nowrap text-white font-medium">#{order.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-gray-300">
-                                            <div className="flex flex-col">
+                                orders!.map((order) => {
+                                    const shippingAddress = order.shipping_address as ShippingAddress | null;
+
+                                    return (
+                                        <tr key={order.id} className="hover:bg-[#1f1f22] transition-colors group">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex flex-col">
+                                                    <span className="text-white font-bold">#{order.id}</span>
+                                                    <span className="text-xs text-gray-500 font-mono">{order.payment_ref?.slice(0, 12)}...</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-gray-300">
                                                 <span className="text-white">{order.user_email}</span>
-                                                <span className="text-xs text-gray-500 font-mono">{order.payment_ref}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-gray-400">
-                                            {new Date(order.created_at).toLocaleDateString()}
-                                            <span className="text-xs ml-2 text-gray-600">
-                                                {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-white font-bold">
-                                            {formatCurrency(Number(order.amount))}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button className="text-[#4ADE80] hover:text-[#3ec46d] hover:underline cursor-not-allowed opacity-50" title="Coming Soon">
-                                                View Items
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {shippingAddress ? (
+                                                    <div className="flex items-start gap-2 max-w-xs">
+                                                        <MapPinIcon className="h-4 w-4 text-[#4ADE80] flex-shrink-0 mt-0.5" />
+                                                        <div>
+                                                            <p className="text-white text-xs leading-tight line-clamp-2">
+                                                                {shippingAddress.full_address || shippingAddress.street}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {shippingAddress.city} • {shippingAddress.postal_code}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-gray-500 text-xs italic">No address</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-gray-400">
+                                                <div className="flex flex-col">
+                                                    <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                                                    <span className="text-xs text-gray-600">
+                                                        {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-white font-bold">
+                                                {formatCurrency(Number(order.amount))}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
