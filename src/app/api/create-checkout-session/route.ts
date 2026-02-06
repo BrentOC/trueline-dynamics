@@ -88,7 +88,7 @@ export async function POST(request: Request) {
                     email: email,
                     amount: amountInCents,
                     currency: "ZAR",
-                    callback_url: `${request.headers.get("origin")}/success`,
+                    callback_url: `${request.headers.get("origin") || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/success`,
                     metadata: {
                         user_id: userId,
                         cart_items: verifiedItems, // Send VERIFIED items back to webhook
