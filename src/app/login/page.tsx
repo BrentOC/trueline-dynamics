@@ -64,8 +64,10 @@ export default function LoginPage() {
                 // Check for MFA
                 const { data: aal } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
                 if (aal && aal.nextLevel === 'aal2' && aal.nextLevel !== aal.currentLevel) {
-                    const { data: factors } = await supabaseClient.auth.mfa.listFactors();
-                    const totpFactor = factors.factors.find(f => f.factor_type === 'totp');
+                    const { data, error } = await supabaseClient.auth.mfa.listFactors();
+                    if (error) throw error;
+
+                    const totpFactor = data?.all?.find(f => f.factor_type === 'totp');
 
                     if (totpFactor) {
                         setFactorId(totpFactor.id);
