@@ -21,12 +21,12 @@ export default function SecurityPage() {
     }, []);
 
     const fetchFactors = async () => {
-        const { data: { factors }, error } = await supabase.auth.mfa.listFactors();
+        const { data, error } = await supabase.auth.mfa.listFactors();
         if (error) {
             console.error('Error fetching factors:', error);
             setError(error.message);
         } else {
-            setFactors(factors || []);
+            setFactors(data?.all || []);
         }
     };
 
