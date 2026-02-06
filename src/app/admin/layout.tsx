@@ -7,11 +7,35 @@ import {
     ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
-export default function AdminLayout({
+import { createClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
+
+export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const supabase = await createClient(); // Await the promise!
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        redirect('/login');
+    }
+
+    // Check Role
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    // If no profile or role is not admin, redirect to home
+    if (profileError || !profile || profile.role !== 'admin') {
+        // console.log('Unauthorized Admin Access Attempt:', user.id, profile?.role); 
+        redirect('/');
+    }
+
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-[#4ADE80] selection:text-black">
             {/* Sidebar - Floating Card Style */}

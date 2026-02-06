@@ -93,15 +93,6 @@ export default async function AdminDashboard() {
 
     return (
         <div>
-            <div className="bg-red-900/50 p-4 mb-4 rounded border border-red-500 text-xs font-mono">
-                <p>DEBUG INFO:</p>
-                <p>User ID: {user?.id}</p>
-                <p>Role: {debugProfile?.role}</p>
-                <p>Profile Error: {debugError?.message}</p>
-                <p>Debug Orders Count: {totalOrders}</p>
-                <p>Recent Orders Error: {recentOrdersRes.error?.message}</p>
-                <p>Recent Orders (Length): {recentOrders.length}</p>
-            </div>
             <h1 className="text-3xl font-bold text-white mb-8">Dashboard</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

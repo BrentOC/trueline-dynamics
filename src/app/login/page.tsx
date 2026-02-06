@@ -10,6 +10,9 @@ export default function LoginPage() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showMfaInput, setShowMfaInput] = useState(false);
+    const [mfaCode, setMfaCode] = useState('');
+    const [factorId, setFactorId] = useState<string>('');
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -24,6 +27,20 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
+            if (showMfaInput) {
+                // Verify MFA
+                const { data, error } = await supabaseClient.auth.mfa.challengeAndVerify({
+                    factorId,
+                    code: mfaCode,
+                });
+
+                if (error) throw error;
+
+                router.refresh();
+                router.push('/');
+                return;
+            }
+
             if (isSignUp) {
                 if (!formData.agreeToTerms) {
                     throw new Error("You must agree to the terms of service.");
@@ -36,23 +53,43 @@ export default function LoginPage() {
                     }
                 });
                 if (error) throw error;
-                // For this demo, we might generally auto-login or ask to check email. 
-                // Supabase default is confirm email. 
-                // We'll show a message or redirect if session exists (auto-confirm enabled).
                 alert("Sign up successful! Please check your email if confirmation is required.");
             } else {
-                const { error } = await supabaseClient.auth.signInWithPassword({
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: formData.email,
                     password: formData.password
                 });
                 if (error) throw error;
+
+                // Check for MFA
+                const { data: aal } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+                if (aal && aal.nextLevel === 'aal2' && aal.nextLevel !== aal.currentLevel) {
+                    const { data: factors } = await supabaseClient.auth.mfa.listFactors();
+                    const totpFactor = factors.factors.find(f => f.factor_type === 'totp');
+
+                    if (totpFactor) {
+                        setFactorId(totpFactor.id);
+                        setShowMfaInput(true);
+                        setLoading(false);
+                        return; // Stop here, wait for MFA code
+                    }
+                }
+
                 router.refresh(); // Force Middleware to re-run and see the new cookie
                 router.push('/');
             }
         } catch (err: any) {
             setError(err.message);
+            setLoading(false); // Only stop loading on error (or if switching to MFA state which handles it)
         } finally {
-            setLoading(false);
+            if (!showMfaInput) {
+                // Keep loading true if just transitioning to MFA input? No, we set it false above.
+                // If we are redirecting, we might want to keep it true?
+                // Let's safe guard.
+                if (!window.location.pathname.includes('/login')) {
+                    // navigated away?
+                }
+            }
         }
     };
 
@@ -67,17 +104,19 @@ export default function LoginPage() {
             <div className="w-[95vw] h-[90vh] bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex relative z-10">
 
                 {/* Toggle Button (Absolute Top Right) */}
-                <div className="absolute top-8 right-8 z-10">
-                    <button
-                        onClick={() => {
-                            setIsSignUp(!isSignUp);
-                            setError(null);
-                        }}
-                        className="px-6 py-3 rounded-full bg-[#1e1e1e] text-white text-base font-medium hover:bg-[#2a2a2a] transition-colors border border-gray-800"
-                    >
-                        {isSignUp ? 'Sign In' : 'Sign Up'}
-                    </button>
-                </div>
+                {!showMfaInput && (
+                    <div className="absolute top-8 right-8 z-10">
+                        <button
+                            onClick={() => {
+                                setIsSignUp(!isSignUp);
+                                setError(null);
+                            }}
+                            className="px-6 py-3 rounded-full bg-[#1e1e1e] text-white text-base font-medium hover:bg-[#2a2a2a] transition-colors border border-gray-800"
+                        >
+                            {isSignUp ? 'Sign In' : 'Sign Up'}
+                        </button>
+                    </div>
+                )}
 
                 {/* Left Side - Geometric Pattern */}
                 <div className="hidden md:block w-4/12 bg-black/50 relative border-r border-white/5">
@@ -96,7 +135,7 @@ export default function LoginPage() {
 
                     <div className="max-w-md mx-auto w-full">
                         <h2 className="text-4xl font-bold mb-10 text-center md:text-left">
-                            {isSignUp ? 'Sign Up' : 'Welcome Back'}
+                            {showMfaInput ? 'Security Verification' : (isSignUp ? 'Sign Up' : 'Welcome Back')}
                         </h2>
 
                         {error && (
@@ -106,73 +145,104 @@ export default function LoginPage() {
                         )}
 
                         <form onSubmit={handleAuth} className="space-y-8">
-                            {isSignUp && (
+                            {showMfaInput ? (
                                 <div className="space-y-2">
-                                    <label className="text-xs uppercase tracking-wider text-gray-500 font-bold">Full Name</label>
+                                    <label className="text-xs uppercase tracking-wider text-gray-500 font-bold">Authenticator Code</label>
                                     <input
                                         type="text"
-                                        placeholder="Enter your name"
-                                        className="w-full bg-transparent border-b border-gray-700 py-3 text-white focus:outline-none focus:border-[#4ADE80] transition-colors placeholder-gray-600 text-base"
-                                        value={formData.fullName}
-                                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                        placeholder="Enter 6-digit code"
+                                        className="w-full bg-transparent border-b border-gray-700 py-3 text-white focus:outline-none focus:border-[#4ADE80] transition-colors placeholder-gray-600 text-base text-center tracking-[0.5em] font-mono text-2xl"
+                                        value={mfaCode}
+                                        onChange={(e) => setMfaCode(e.target.value)}
+                                        autoFocus
                                     />
+                                    <p className="text-xs text-gray-500 pt-2">
+                                        Please enter the code from your authenticator app to continue.
+                                    </p>
                                 </div>
-                            )}
+                            ) : (
+                                <>
+                                    {isSignUp && (
+                                        <div className="space-y-2">
+                                            <label className="text-xs uppercase tracking-wider text-gray-500 font-bold">Full Name</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Enter your name"
+                                                className="w-full bg-transparent border-b border-gray-700 py-3 text-white focus:outline-none focus:border-[#4ADE80] transition-colors placeholder-gray-600 text-base"
+                                                value={formData.fullName}
+                                                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                            />
+                                        </div>
+                                    )}
 
-                            <div className="space-y-2">
-                                <label className="text-xs uppercase tracking-wider text-gray-500 font-bold">Email</label>
-                                <input
-                                    type="email"
-                                    placeholder="Enter your email"
-                                    className="w-full bg-transparent border-b border-gray-700 py-3 text-white focus:outline-none focus:border-[#4ADE80] transition-colors placeholder-gray-600 text-base"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs uppercase tracking-wider text-gray-500 font-bold">Password</label>
-                                <input
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    className="w-full bg-transparent border-b border-gray-700 py-3 text-white focus:outline-none focus:border-[#4ADE80] transition-colors placeholder-gray-600 text-base"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                />
-                            </div>
-
-                            {isSignUp && (
-                                <div className="flex items-center gap-3 pt-2">
-                                    <div
-                                        className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer ${formData.agreeToTerms ? 'bg-[#4ADE80] border-[#4ADE80]' : 'border-gray-600'}`}
-                                        onClick={() => setFormData({ ...formData, agreeToTerms: !formData.agreeToTerms })}
-                                    >
-                                        {formData.agreeToTerms && (
-                                            <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        )}
+                                    <div className="space-y-2">
+                                        <label className="text-xs uppercase tracking-wider text-gray-500 font-bold">Email</label>
+                                        <input
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            className="w-full bg-transparent border-b border-gray-700 py-3 text-white focus:outline-none focus:border-[#4ADE80] transition-colors placeholder-gray-600 text-base"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        />
                                     </div>
-                                    <span className="text-sm text-gray-500">I agree to all statements in terms of service</span>
-                                </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-xs uppercase tracking-wider text-gray-500 font-bold">Password</label>
+                                        <input
+                                            type="password"
+                                            placeholder="Enter your password"
+                                            className="w-full bg-transparent border-b border-gray-700 py-3 text-white focus:outline-none focus:border-[#4ADE80] transition-colors placeholder-gray-600 text-base"
+                                            value={formData.password}
+                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        />
+                                    </div>
+
+                                    {isSignUp && (
+                                        <div className="flex items-center gap-3 pt-2">
+                                            <div
+                                                className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer ${formData.agreeToTerms ? 'bg-[#4ADE80] border-[#4ADE80]' : 'border-gray-600'}`}
+                                                onClick={() => setFormData({ ...formData, agreeToTerms: !formData.agreeToTerms })}
+                                            >
+                                                {formData.agreeToTerms && (
+                                                    <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            <span className="text-sm text-gray-500">I agree to all statements in terms of service</span>
+                                        </div>
+                                    )}
+                                </>
                             )}
 
                             <div className="pt-8 flex items-center justify-between">
-                                {isSignUp ? (
+                                {!showMfaInput && (
+                                    isSignUp ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsSignUp(false)}
+                                            className="text-sm text-gray-500 hover:text-white transition-colors"
+                                        >
+                                            I'm already a member
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => router.push('/forgot-password')} // Assuming this exists or just a placeholder
+                                            className="text-sm text-gray-500 hover:text-white transition-colors"
+                                        >
+                                            Forgot Password?
+                                        </button>
+                                    )
+                                )}
+
+                                {showMfaInput && (
                                     <button
                                         type="button"
-                                        onClick={() => setIsSignUp(false)}
+                                        onClick={() => { setShowMfaInput(false); setLoading(false); }}
                                         className="text-sm text-gray-500 hover:text-white transition-colors"
                                     >
-                                        I'm already a member
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push('/forgot-password')} // Assuming this exists or just a placeholder
-                                        className="text-sm text-gray-500 hover:text-white transition-colors"
-                                    >
-                                        Forgot Password?
+                                        Cancel
                                     </button>
                                 )}
 
@@ -181,9 +251,7 @@ export default function LoginPage() {
                                     disabled={loading}
                                     className="px-10 py-4 bg-[#4ADE80] text-black text-sm font-bold uppercase rounded-full hover:bg-[#45c975] transition-colors transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Log In')}
-                                    {/* Note: In the design image, the button says "SIGN IN" even on Sign Up form, probably a typo in mockup or context. 
-                                        I'll stick to logical labels: Sign Up -> Sign Up, Sign In -> Log In */}
+                                    {loading ? 'Processing...' : (showMfaInput ? 'Verify' : (isSignUp ? 'Sign Up' : 'Log In'))}
                                 </button>
                             </div>
                         </form>
