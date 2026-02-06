@@ -15,18 +15,76 @@ export default async function AdminDashboard() {
     const [ordersRes, productsRes, salesRes, recentOrdersRes] = await Promise.all([
         supabase.from('orders').select('*', { count: 'exact', head: true }),
         supabase.from('products').select('*', { count: 'exact', head: true }),
-        supabase.from('orders').select('amount').in('status', ['paid', 'shipped', 'delivered', 'processing']), // Include processing? Usually yes for revenue view
+        supabase.from('orders').select('*').in('status', ['paid', 'shipped', 'delivered', 'processing']), // Include processing? Usually yes for revenue view
         supabase.from('orders')
-            .select(`*, profiles:user_id (email, full_name)`) // Assuming 'profiles' relation or user_metadata fallback
+            .select('*') // Removed join that causes error
             .order('created_at', { ascending: false })
             .limit(5)
     ]);
+
+    // Manual Join for Recent Orders to avoid Relationship Error
+    const recentOrdersRaw = recentOrdersRes.data || [];
+    const userIds = Array.from(new Set(recentOrdersRaw.map(o => o.user_id).filter(Boolean)));
+
+    let profilesMap: Record<string, any> = {};
+    if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, email, full_name') // Ensure 'email' exists on profile or fetch from auth? Wait, profile usually has email?
+            // The schema in migration_admin_role.sql does NOT show email in profiles!
+            // It only has id, role. 
+            // Real email is in auth.users. 
+            // Accessing auth.users from client is hard.
+            // BUT 'profiles' table usually implies metadata.
+            // Let's assume for now we might NOT get email easily if it's not in profiles.
+            .in('id', userIds);
+
+        // Wait, if profiles table doesn't have email column (per migration_admin_role.sql), we can't show it from profiles!
+        // We might need to fetch it from user_metadata or just show User ID if email is unavailable.
+        // Or maybe Admin API? Admin API is not available in Client Component? This is Server Component.
+        // We can use supabase.auth.admin.listUsers() if we have service role? No, we are using scoped client.
+
+        // Let's check if profiles has email. migration_admin_role.sql columns: id, role, created_at, updated_at.
+        // NO EMAIL IN PROFILES.
+
+        // Fix: Query `orders` usually has `user_email` stored in it?
+        // Let's check `seedOrder` in `utils.ts` -> `.rpc('fulfill_order', { p_user_email: email ... })`
+        // Does `fulfill_order` save email to `orders` table?
+        // Please check `migration_fix_orders_rls` or standard schema?
+        // I don't see orders schema definition.
+
+        // However, the previous code tried to select `profiles:user_id (email)`.
+        // If that was the intent, maybe the developer expected profiles to have it.
+
+        // Let's look at `src/app/admin/page.tsx` again.
+        // It uses `order.user_email || 'Unknown'` in the render loop.
+        // If `orders` table has `user_email` column, we don't need the join!
+
+        if (profiles) {
+            profiles.forEach(p => profilesMap[p.id] = p);
+        }
+    }
+
+    const recentOrders = recentOrdersRaw.map(order => ({
+        ...order,
+        // If order has user_email column, use it. If not, try profile (which might not have it).
+        // Let's assume order might have it or we fail gracefully.
+        profiles: profilesMap[order.user_id]
+    }));
 
     // Calculations
     const totalOrders = ordersRes.count || 0;
     const totalProducts = productsRes.count || 0;
     const totalSales = salesRes.data?.reduce((sum, order) => sum + (Number(order.amount) || 0), 0) || 0;
-    const recentOrders = recentOrdersRes.data || [];
+    // recentOrders is already defined above in the manual join block
+
+    // Debug: Fetch current user profile
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: debugProfile, error: debugError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
 
     // Formatting
     const formatCurrency = (amount: number) => {
@@ -35,6 +93,15 @@ export default async function AdminDashboard() {
 
     return (
         <div>
+            <div className="bg-red-900/50 p-4 mb-4 rounded border border-red-500 text-xs font-mono">
+                <p>DEBUG INFO:</p>
+                <p>User ID: {user?.id}</p>
+                <p>Role: {debugProfile?.role}</p>
+                <p>Profile Error: {debugError?.message}</p>
+                <p>Debug Orders Count: {totalOrders}</p>
+                <p>Recent Orders Error: {recentOrdersRes.error?.message}</p>
+                <p>Recent Orders (Length): {recentOrders.length}</p>
+            </div>
             <h1 className="text-3xl font-bold text-white mb-8">Dashboard</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

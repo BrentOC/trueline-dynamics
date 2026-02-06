@@ -1,0 +1,52 @@
+﻿
+Running 1 test using 1 worker
+
+  Ô£ÿ  1 [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) (1.5m)
+
+
+  1) [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("Log In")')[22m
+    [2m    - locator resolved to <button type="submit" class="px-10 py-4 bg-[#4ADE80] text-black text-sm font-bold uppercase rounded-full hover:bg-[#45c975] transition-colors transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">Log In</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 ├ù waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - <nextjs-portal></nextjs-portal> from <script data-nextjs-dev-overlay="true">ÔÇª</script> subtree intercepts pointer events[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 ├ù waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - <nextjs-portal></nextjs-portal> from <script data-nextjs-dev-overlay="true">ÔÇª</script> subtree intercepts pointer events[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    143 ├ù waiting for element to be visible, enabled and stable[22m
+    [2m        - element is visible, enabled and stable[22m
+    [2m        - scrolling into view if needed[22m
+    [2m        - done scrolling[22m
+    [2m        - <nextjs-portal></nextjs-portal> from <script data-nextjs-dev-overlay="true">ÔÇª</script> subtree intercepts pointer events[22m
+    [2m      - retrying click action[22m
+    [2m        - waiting 500ms[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+
+
+      60 |         await page.fill('input[placeholder="Enter your email"]', adminEmail);
+      61 |         await page.fill('input[placeholder="Enter your password"]', password);
+    > 62 |         await page.locator('button:has-text("Log In")').click();
+         |                                                         ^
+      63 |         await expect(page.locator('text=Sign Out')).toBeVisible({ timeout: 15000 });
+      64 |
+      65 |         // 3. Verify Dashboard
+        at C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\e2e\admin.spec.ts:62:57
+
+    Error Context: test-results\admin-Admin-Security-admin-7df1c-real-data-orders-customers--chromium\error-context.md
+
+  1 failed
+    [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 

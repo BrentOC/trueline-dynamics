@@ -1,0 +1,37 @@
+﻿
+Running 1 test using 1 worker
+
+  Ô£ÿ  1 [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) (11.3s)
+
+
+  1) [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('body')
+    Expected substring: [32m"#30"[39m
+    Received string:    [31m"TrueLineDynamicsAllEnd MillsInsertsHello, test.admin.data.1770371251065Sign OutReturns& Orders0CartAll CategoriesEnd MillsInsertsNew ArrivalsDealsTTrueLineMenuDashboardProductsOrdersCustomersBack to StoreDashboardTotal SalesR┬á5┬á099,88Total Orders21Total Products4Recent OrdersView AllOrder IDCustomerDateStatusTotalNo orders found yet.Back to topGet to Know UsCareersBlogAbout TrueLine DynamicsInvestor RelationsMake Money with UsSell products on TrueLineSell on TrueLine BusinessBecome an AffiliateAdvertise Your ProductsTrueLine Payment ProductsTrueLine Business CardShop with PointsReload Your BalanceLet Us Help YouYour AccountYour OrdersShipping Rates & PoliciesReturns & ReplacementsHelpTrueLineDynamics┬® 1996-2024, TrueLine Dynamics, Inc. or its affiliates"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('body')[22m
+    [2m    4 ├ù locator resolved to <body class="antialiased selection:bg-[#4ADE80] selection:text-black">ÔÇª</body>[22m
+    [2m      - unexpected value "TrueLineDynamicsAllEnd MillsInsertsLoading...Returns& Orders0CartAll CategoriesEnd MillsInsertsNew ArrivalsDealsTTrueLineMenuDashboardProductsOrdersCustomersBack to StoreDashboardTotal SalesR┬á5┬á099,88Total Orders21Total Products4Recent OrdersView AllOrder IDCustomerDateStatusTotalNo orders found yet.Back to topGet to Know UsCareersBlogAbout TrueLine DynamicsInvestor RelationsMake Money with UsSell products on TrueLineSell on TrueLine BusinessBecome an AffiliateAdvertise Your ProductsTrueLine Payment ProductsTrueLine Business CardShop with PointsReload Your BalanceLet Us Help YouYour AccountYour OrdersShipping Rates & PoliciesReturns & ReplacementsHelpTrueLineDynamics┬® 1996-2024, TrueLine Dynamics, Inc. or its affiliates"[22m
+    [2m    5 ├ù locator resolved to <body class="antialiased selection:bg-[#4ADE80] selection:text-black">ÔÇª</body>[22m
+    [2m      - unexpected value "TrueLineDynamicsAllEnd MillsInsertsHello, test.admin.data.1770371251065Sign OutReturns& Orders0CartAll CategoriesEnd MillsInsertsNew ArrivalsDealsTTrueLineMenuDashboardProductsOrdersCustomersBack to StoreDashboardTotal SalesR┬á5┬á099,88Total Orders21Total Products4Recent OrdersView AllOrder IDCustomerDateStatusTotalNo orders found yet.Back to topGet to Know UsCareersBlogAbout TrueLine DynamicsInvestor RelationsMake Money with UsSell products on TrueLineSell on TrueLine BusinessBecome an AffiliateAdvertise Your ProductsTrueLine Payment ProductsTrueLine Business CardShop with PointsReload Your BalanceLet Us Help YouYour AccountYour OrdersShipping Rates & PoliciesReturns & ReplacementsHelpTrueLineDynamics┬® 1996-2024, TrueLine Dynamics, Inc. or its affiliates"[22m
+
+
+      71 |         // Check Recent Orders table for the specific order ID
+      72 |         // Note: ID displayed as #123
+    > 73 |         await expect(page.locator('body')).toContainText(`#${orderId}`);
+         |                                            ^
+      74 |         await expect(page.locator('body')).toContainText(customerEmail);
+      75 |
+      76 |         // 4. Verify Orders List
+        at C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\e2e\admin.spec.ts:73:44
+
+    Error Context: test-results\admin-Admin-Security-admin-7df1c-real-data-orders-customers--chromium\error-context.md
+
+  1 failed
+    [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 

@@ -87,6 +87,16 @@ export async function seedOrder(userId: string, email: string) {
 }
 
 export async function makeUserAdmin(userId: string) {
+    // 1. Ensure profile exists (handle potential trigger delay)
+    let retries = 5;
+    while (retries > 0) {
+        const { data } = await supabaseAdmin.from('profiles').select('id').eq('id', userId).single();
+        if (data) break;
+        await new Promise(r => setTimeout(r, 500));
+        retries--;
+    }
+
+    // 2. Update role
     const { error } = await supabaseAdmin
         .from('profiles')
         .update({ role: 'admin' })
@@ -95,6 +105,14 @@ export async function makeUserAdmin(userId: string) {
     if (error) {
         console.error("Error making user admin:", error);
         throw error;
+    }
+
+    // 3. Verify
+    const { data: verify } = await supabaseAdmin.from('profiles').select('role').eq('id', userId).single();
+    if (verify?.role !== 'admin') {
+        // Force insert if update failed (e.g. if profile still didn't exist)
+        const { error: insertError } = await supabaseAdmin.from('profiles').upsert({ id: userId, role: 'admin' });
+        if (insertError) throw new Error(`Failed to force admin role: ${insertError.message}`);
     }
 }
 

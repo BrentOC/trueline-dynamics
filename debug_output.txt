@@ -1,0 +1,34 @@
+﻿
+Running 1 test using 1 worker
+
+  Ô£ÿ  1 [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) (16.5s)
+
+
+  1) [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('text=Total Orders')
+    Expected: visible
+    Error: strict mode violation: locator('text=Total Orders') resolved to 2 elements:
+        1) <p>ÔÇª</p> aka getByText('Total Orders (Count):')
+        2) <p class="text-sm text-gray-400 font-medium">Total Orders</p> aka getByText('Total Orders', { exact: true })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('text=Total Orders')[22m
+
+
+      67 |         await expect(page.locator('h1')).toContainText('Dashboard');
+      68 |         // Total Orders should be visible and numeric
+    > 69 |         await expect(page.locator('text=Total Orders')).toBeVisible();
+         |                                                         ^
+      70 |
+      71 |         // Check Recent Orders table for the specific order ID
+      72 |         // Note: ID displayed as #123
+        at C:\Users\pc\Desktop\Webdesign\Dev2\trueline-dynamics\e2e\admin.spec.ts:69:57
+
+    Error Context: test-results\admin-Admin-Security-admin-7df1c-real-data-orders-customers--chromium\error-context.md
+
+  1 failed
+    [chromium] ÔÇ║ e2e\admin.spec.ts:41:9 ÔÇ║ Admin Security ÔÇ║ admin user can see real data (orders, customers) 
