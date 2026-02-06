@@ -15,76 +15,24 @@ export default async function AdminDashboard() {
     const [ordersRes, productsRes, salesRes, recentOrdersRes] = await Promise.all([
         supabase.from('orders').select('*', { count: 'exact', head: true }),
         supabase.from('products').select('*', { count: 'exact', head: true }),
-        supabase.from('orders').select('*').in('status', ['paid', 'shipped', 'delivered', 'processing']), // Include processing? Usually yes for revenue view
+        supabase.from('orders').select('amount').in('status', ['paid', 'shipped', 'delivered', 'processing']),
         supabase.from('orders')
-            .select('*') // Removed join that causes error
+            .select(`
+                *,
+                profiles (
+                    email,
+                    full_name
+                )
+            `)
             .order('created_at', { ascending: false })
             .limit(5)
     ]);
-
-    // Manual Join for Recent Orders to avoid Relationship Error
-    const recentOrdersRaw = recentOrdersRes.data || [];
-    const userIds = Array.from(new Set(recentOrdersRaw.map(o => o.user_id).filter(Boolean)));
-
-    let profilesMap: Record<string, any> = {};
-    if (userIds.length > 0) {
-        const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, email, full_name') // Ensure 'email' exists on profile or fetch from auth? Wait, profile usually has email?
-            // The schema in migration_admin_role.sql does NOT show email in profiles!
-            // It only has id, role. 
-            // Real email is in auth.users. 
-            // Accessing auth.users from client is hard.
-            // BUT 'profiles' table usually implies metadata.
-            // Let's assume for now we might NOT get email easily if it's not in profiles.
-            .in('id', userIds);
-
-        // Wait, if profiles table doesn't have email column (per migration_admin_role.sql), we can't show it from profiles!
-        // We might need to fetch it from user_metadata or just show User ID if email is unavailable.
-        // Or maybe Admin API? Admin API is not available in Client Component? This is Server Component.
-        // We can use supabase.auth.admin.listUsers() if we have service role? No, we are using scoped client.
-
-        // Let's check if profiles has email. migration_admin_role.sql columns: id, role, created_at, updated_at.
-        // NO EMAIL IN PROFILES.
-
-        // Fix: Query `orders` usually has `user_email` stored in it?
-        // Let's check `seedOrder` in `utils.ts` -> `.rpc('fulfill_order', { p_user_email: email ... })`
-        // Does `fulfill_order` save email to `orders` table?
-        // Please check `migration_fix_orders_rls` or standard schema?
-        // I don't see orders schema definition.
-
-        // However, the previous code tried to select `profiles:user_id (email)`.
-        // If that was the intent, maybe the developer expected profiles to have it.
-
-        // Let's look at `src/app/admin/page.tsx` again.
-        // It uses `order.user_email || 'Unknown'` in the render loop.
-        // If `orders` table has `user_email` column, we don't need the join!
-
-        if (profiles) {
-            profiles.forEach(p => profilesMap[p.id] = p);
-        }
-    }
-
-    const recentOrders = recentOrdersRaw.map(order => ({
-        ...order,
-        // If order has user_email column, use it. If not, try profile (which might not have it).
-        // Let's assume order might have it or we fail gracefully.
-        profiles: profilesMap[order.user_id]
-    }));
 
     // Calculations
     const totalOrders = ordersRes.count || 0;
     const totalProducts = productsRes.count || 0;
     const totalSales = salesRes.data?.reduce((sum, order) => sum + (Number(order.amount) || 0), 0) || 0;
-    // recentOrders is already defined above in the manual join block
-
-    // Debug: Fetch current user profile
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: debugProfile, error: debugError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
-        .single();
+    const recentOrders = recentOrdersRes.data || [];
 
     // Formatting
     const formatCurrency = (amount: number) => {
@@ -160,7 +108,8 @@ export default async function AdminDashboard() {
                                         <tr key={order.id} className="hover:bg-[#1f1f22] transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap text-white font-medium">#{order.id}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-gray-300">
-                                                {order.user_email || 'Unknown'}
+                                                {/* Access nested profiles data */}
+                                                {order.profiles?.email || order.profiles?.full_name || 'Unknown User'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-gray-400">
                                                 {new Date(order.created_at).toLocaleDateString()}
@@ -187,3 +136,4 @@ export default async function AdminDashboard() {
         </div>
     );
 }
+

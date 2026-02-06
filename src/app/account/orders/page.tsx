@@ -52,7 +52,12 @@ export default function OrderHistory() {
                 .order('created_at', { ascending: false });
 
             if (data) setOrders(data);
-            if (error) console.error("Error fetching orders:", error);
+            if (error) {
+                console.error("Error fetching orders (Full Details):", JSON.stringify(error, null, 2));
+                console.error("Error Message:", error.message);
+                console.error("Error Code:", error.code);
+                console.error("Error Hint:", error.hint);
+            }
 
             setLoading(false);
         };
